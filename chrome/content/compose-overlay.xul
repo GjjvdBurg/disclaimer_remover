@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<overlay id="disclaimer_removercomposeoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/javascript"
+        src="chrome://disclaimer_remover/content/disclaimer_remover.js"/>
+    <script type="application/javascript"
+        src="chrome://disclaimer_remover/content/compose-overlay.js"/>
+</overlay>
