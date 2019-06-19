@@ -3,44 +3,44 @@
 if (typeof DisclaimerRemover == "undefined") {
 	var DisclaimerRemover = {};
 
+	// Running an actual regex over the whole thing didn't work because 
+	// there are newlines in the disclaimer. This finds the beginning and 
+	// end parts and strips out whats in between. Might be some 
+	// side-effects I didn't think about, but oh well.
 	DisclaimerRemover.runRegex = function(text) {
 		var result;
 		var start_text ="The Alan Turing Institute is a limited liability company, registered in England";
 		var reg = RegExp(start_text, "g");
-		var idx1 = reg.exec(text).index;
+		var res = reg.exec(text);
+		if (res === null)
+			return text;
+		var idx1 = res.index;
 		var end_text = "data and it explains your rights and how to raise concerns with us.";
 		var reg = RegExp(end_text, "g");
-		var idx2 = reg.exec(text).index;
+		var res = reg.exec(text);
+		if (res === null)
+			return text;
+		var idx2 = res.index;
 		idx2 += end_text.length;
 		return text.replace(text.substring(idx1, idx2), "");
 	}
 
-	DisclaimerRemover.removeDisclaimer = function(contentDocument) {
-		console.log(contentDocument);
-		console.log(contentDocument.body.innerHTML);
-		var html = contentDocument.getElementsByTagName("html")[0];
-		//var html = contentDocument.documentElement.innerHTML;
-		var clean = DisclaimerRemover.runRegex(html.innerHTML);
-		contentDocument.documentElement.innerHTML = clean;
-		console.log("Replaced innerHTML");
+	/* READING MESSAGES */
+
+	DisclaimerRemover.contentLoaded = function(event) {
+		var body = event.originalTarget.body;
+		if (!body.innerHTML)
+			return;
+		var clean = DisclaimerRemover.runRegex(body.innerHTML);
+		body.innerHTML = clean;
 	}
 
-	DisclaimerRemover.onLoadMessagePane = function(event) {
-		/* Only process when there is a message present */
-		if (!gMessageDisplay) {
-			console.log("No message display.");
-			return;
-		}
-		if (!gMessageDisplay.displayedMessage) {
-			console.log("No displayed message.");
-			return;
-		}
-		document.removeEventListener("load", DisclaimerRemover.onLoadMessagePane, true);
+	DisclaimerRemover.onWindowLoad = function(event) {
 		var mp = document.getElementById('messagepane');
-		DisclaimerRemover.removeDisclaimer(mp.contentDocument);
-		document.addEventListener("load", DisclaimerRemover.onLoadMessagePane, true);
+		mp.addEventListener("DOMContentLoaded", DisclaimerRemover.contentLoaded, true);
 	};
 
+	/* COMPOSING MESSAGES */
 
 	DisclaimerRemover.doComposeFixups = function(currentEditorDom) {
 		(function iterate_node(node) {
@@ -55,10 +55,6 @@ if (typeof DisclaimerRemover == "undefined") {
 		})(currentEditorDom);
 	}
 
-	DisclaimerRemover.init = function() {
-		document.addEventListener("load", DisclaimerRemover.onLoadMessagePane, true);
-	};
-
 	/* for the compose window */
 	DisclaimerRemover.onLoadComposePane = function(event) {
 		var type = GetCurrentEditorType();
@@ -71,7 +67,6 @@ if (typeof DisclaimerRemover == "undefined") {
 			return;
 
 		var currentEditorDom = currentEditor.rootElement;
-		//DisclaimerRemover.doFixups(currentEditorDom);
 		DisclaimerRemover.doComposeFixups(currentEditorDom);
 	};
 

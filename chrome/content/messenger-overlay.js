@@ -1,2 +1,1 @@
-
-window.addEventListener("load", function() { DisclaimerRemover.init(); }, false);
+window.addEventListener("load", function() { DisclaimerRemover.onWindowLoad(); }, false);
