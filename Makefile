@@ -1,7 +1,6 @@
-filt := <em:version>%</em:version>
-VERSION := $(patsubst $(filt),%,$(filter $(filt), $(shell cat install.rdf)))
+VERSION=$(shell cat manifest.json | grep '"version":' | tr -d '", ' | cut -d':' -f2)
 
-dist_EXTRA :=   ./install.rdf \
+dist_EXTRA :=   ./manifest.json \
 		./chrome.manifest \
 		./chrome/content/disclaimer_remover.png \
 		./chrome/content/messenger-overlay.xul \
